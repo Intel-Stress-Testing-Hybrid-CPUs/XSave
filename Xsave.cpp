@@ -3,6 +3,12 @@
 #include <stdlib.h>
 #include <memory>
 
+// CREDIT: 
+// Pointer based memory alignment code comes from online C++ documentation:
+/*
+https://en.cppreference.com/w/cpp/memory/align
+*/
+
 template <std::size_t N>
 struct MyAllocator
 {
