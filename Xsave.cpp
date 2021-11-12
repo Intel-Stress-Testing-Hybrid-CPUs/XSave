@@ -47,6 +47,11 @@ int main() {
     std::cout << "allocated an int at " << (int*)p3 << " (32 byte alignment)\n";
 
 	_xsave(p3, 0x11111);
+
+    for (int i = 0; i < 512; i++) {
+        cout << p3[i] << endl;
+    }
+
 	free(memory);
 	return 0;
 }
