@@ -1,57 +1,45 @@
 #include <immintrin.h>
-#include <iostream>
+#include <iostream> // for cout
 #include <stdlib.h>
-#include <memory>
+#include <stdio.h>
+#include <memory>   
+#include <exception>
 
 // CREDIT: 
 // Pointer based memory alignment code comes from online C++ documentation:
 /*
 https://en.cppreference.com/w/cpp/memory/align
+https://www.cplusplus.com/doc/tutorial/exceptions/
 */
-
-template <std::size_t N>
-struct MyAllocator
-{
-    char data[N];
-    void* p;
-    std::size_t sz;
-    MyAllocator() : p(data), sz(N) {}
-    template <typename T>
-    T* aligned_alloc(std::size_t a = alignof(T))
-    {
-        if (std::align(a, sizeof(T), p, sz))
-        {
-            T* result = reinterpret_cast<T*>(p);
-            p = (char*)p + sizeof(T);
-            sz -= sizeof(T);
-            return result;
-        }
-        return nullptr;
-    }
-};
 
 using namespace std;
 
-int main() {
-	cout << "Hello, World!" << endl;
+    int main() {
+        cout << "Hello, World!" << endl;
+        void* p5 = _aligned_malloc(512, 16);
 
-    MyAllocator<512> a;
+        if (p5 == nullptr) {
+            cout << "null reference on p5" << endl;
+            return -1;
+        }
+        std::cout << "allocated an int at " << (void*)p5 << " (16 byte alignment)\n";
 
-	//static void* memory = (void*) calloc(10000, sizeof(float));
-	void* memory = nullptr;
+        int* beforepoint = (int*)p5;
+        cout << " BEFORE POINT:" << endl;
+        for (int i = 0; i < 512; i++) {
+            cout << beforepoint[i] << endl;
+        }
 
-	std::size_t space = 512;
-	void* aligned = std::align(16, 512, memory, space);
+        _fxsave(p5);
+       // _xsave(p5, 0x11111);
+        int* intpoint = (int*) p5;
 
-    int* p3 = a.aligned_alloc<int>(16);
-    std::cout << "allocated an int at " << (int*)p3 << " (32 byte alignment)\n";
+        // Bytes 464:511 are available to software use.The processor does not write to bytes 464 : 511 of an FXSAVE area.
+        cout << "AFTER POINT" << endl;
+        for (int i = 0; i < 512; i++) {
+            cout << intpoint[i] << endl;
+        }
 
-	_xsave(p3, 0x11111);
-
-    for (int i = 0; i < 512; i++) {
-        cout << p3[i] << endl;
+        free(p5);
+        return 0;
     }
-
-	free(memory);
-	return 0;
-}
