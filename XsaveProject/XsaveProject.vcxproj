@@ -141,6 +141,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="FP_loop_test.cpp" />
     <ClCompile Include="Xsave.cpp" />
     <ClCompile Include="Xsave_arjun.cpp" />
   </ItemGroup>

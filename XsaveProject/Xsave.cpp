@@ -16,7 +16,7 @@ using namespace std;
 
     int main() {
         cout << "Hello, World!" << endl;
-        void* p5 = _aligned_malloc(512, 16);
+        void* p5 = _aligned_malloc(128*sizeof(int), 16);
         cout << "size of pointer is " << sizeof(p5) << endl;
 
         if (p5 == nullptr) {
@@ -41,6 +41,25 @@ using namespace std;
             cout << intpoint[i] << endl;
         }
 
-        free(p5);
+        for (int i = 0; i < 72; i++) {
+            intpoint[i] = 3;
+        } 
+        
+        // stall some time before an FXRSTR
+
+        // WE CURRENTLY ARE NOT IN 64 BIT MODE!!!
+        // alignment is good
+        
+        _fxrstor(p5);
+        _fxsave(p5);
+
+        cout << endl;
+        cout << endl;
+        cout << "AFTER POINT 2" << endl;
+        for (int i = 0; i < 512; i++) {
+            cout << intpoint[i] << endl;
+        }
+
+        _aligned_free(p5);
         return 0;
     }

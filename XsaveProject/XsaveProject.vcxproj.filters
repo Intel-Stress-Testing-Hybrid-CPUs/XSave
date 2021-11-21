@@ -21,5 +21,8 @@
     <ClCompile Include="Xsave_arjun.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="FP_loop_test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
