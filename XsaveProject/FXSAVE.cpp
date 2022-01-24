@@ -19,7 +19,7 @@ https://www.cplusplus.com/doc/tutorial/exceptions/
 
 using namespace std;
 
-int main(int argc, char* argv[]) {
+int main2(int argc, char* argv[]) {
 
     cout << "Hello, World!" << endl;
     void* p5 = _aligned_malloc(128 * sizeof(int), 16);
