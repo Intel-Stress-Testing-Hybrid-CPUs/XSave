@@ -33,6 +33,14 @@ void print_xsave(int* xsavedata_int) {
     }
 }
 
+void print_two_xsave(int* xsavedata_int1, int* xsavedata_int2) {
+    for (int i = 0; i < (total_bytes / 4); i++) {
+        int last_byte = (i + 1) * 4 - 1;
+        int first_byte = (i + 1) * 4 - 4;
+        cout << "byte " << to_string(first_byte) << "-" << to_string(last_byte) << ": " << to_string(xsavedata_int1[i]) << " " << to_string(xsavedata_int2[i]) << endl;
+    }
+}
+
 void change_xsave_data_random(int* xsavedata_int) {
     for (int i = 0; i < (total_bytes / 4); i++) {
         xsavedata_int[i] = rand();
@@ -48,39 +56,64 @@ int main(int argc, char *argv[]) {
 
     // allocate the xsave data region given by 'total_bytes' on a 'byte_boundary_size' boundary
     void* xsavedata = _aligned_malloc(total_bytes, byte_boundary_size);
-    if (xsavedata == nullptr) {
+    void* xsavedata2 = _aligned_malloc(total_bytes, byte_boundary_size);
+    if (xsavedata == nullptr || xsavedata2 == nullptr) {
         throw exception("Aligned malloc failed, returned nullptr");
     }
 
     // clear the data inside the region to all 0s
     memset(xsavedata, 0, total_bytes);
+    memset(xsavedata2, 0, total_bytes);
 
     // check if XSAVE is supported either by CPU or OS
     // uses InstructionSet.cpp
     check_instructions();
 
-    while (true) {
+    int counter = 0;
+    while (counter < 1) {
 
         // call xsave and save the processor state (note this is 32 bit mode)
         // saves everything in processor state that can be saved
+        print_xsave((int*)xsavedata);
         _xsave(xsavedata, 0xFu);
+        run_fpu();
+        _xsave(xsavedata2, 0xFu);
+        //run_fpu();
+        //cout << "END" << endl;
+        print_two_xsave((int*)xsavedata, (int*)xsavedata2);
+        //_xsave(xsavedata, 0xFu);
+        counter++;
+
+        try {
+            cout << "saving " << to_string(counter) << endl;
+        }
+
+        catch(const std::exception &e) {
+            cout << e.what() << endl;
+        }
 
         // change the data
         change_xsave_data_random((int*)xsavedata);
 
         // realign the memory region
-        std::size_t space = 512;
-        xsavedata = align(64, 512, xsavedata, space);
+        //std::size_t space = 512;
+        //xsavedata = align(64, 512, xsavedata, space);
 
-        _xrstor(xsavedata, 0xFu);
+        //_xrstor(xsavedata, 0xFu);
     }
 
     // print out the results
-    print_xsave((int*)xsavedata);
+    //print_xsave((int*)xsavedata);
     
     // free allocated data region using special _aligned_free() method
     // TODO: fix _aligned_free(xsavedata)
-    _aligned_free(xsavedata);
+
+    try {
+        _aligned_free(xsavedata);
+    }
+    catch (const std::exception& e) {
+        cout << e.what() << endl;
+    }
 
     return 0;
 }
