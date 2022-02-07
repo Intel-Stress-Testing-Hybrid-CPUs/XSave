@@ -21,6 +21,7 @@ https://www.cplusplus.com/doc/tutorial/exceptions/
 
 using namespace std;
 
+/* GLOBALS TO DEFINE XSAVE MEMORY START AND END INDICES FOR SPECIFIC REGIONS*/
 // this is 512 bytes (128 * 4), aligned on 64 byte boundary
 int total_bytes = 512;
 int byte_boundary_size = 64;
@@ -29,30 +30,36 @@ int XMM_start_byte = 160;
 int XMM_end_byte = 287;
 int XMM_width = 16;
 
-// print out the entire xsave data state region
-void print_xsave(int* xsavedata_int) {
-    for (int i = 0; i < (total_bytes / 4); i++) {
-        int last_byte = (i + 1) * 4 - 1;
-        int first_byte = (i + 1) * 4 - 4;
-        cout << "byte " << to_string(first_byte) << "-" << to_string(last_byte) << ": " << to_string(xsavedata_int[i]) << endl;
-    }
-}
-
-void print_two_xsave(char* xsavedata_f1, char* xsavedata_f2) {
+/*
+Inputs: xsavedata is the xsave memory region
+Outputs: None
+Prints out the data of an x-save memory region on a per-byte basis, prints out number of bytes = total_bytes
+*/
+void print_xsave(char* xsavedata) {
     for (int i = 0; i < (total_bytes); i++) {
-        cout << "byte " << to_string(i) << ": " << to_string(xsavedata_f1[i]) << " " << to_string(xsavedata_f2[i]) << endl;
+        cout << "byte " << to_string(i) << ": " << to_string(xsavedata[i]) << endl;
     }
 }
 
-void print_xmm_registers(float* xsavedata) {
-    for (int i = XMM_start_byte; i != XMM_end_byte; i+=XMM_width) {
-
+/*
+Inputs: xsavedata and xsavedata2 are xsave memory regions
+Outputs: None
+Prints out the data of two x-save memory regions on a per-byte basis, prints out number of bytes = total_bytes
+*/
+void print_two_xsave(char* xsavedata, char* xsavedata2) {
+    for (int i = 0; i < (total_bytes); i++) {
+        cout << "byte " << to_string(i) << ": " << to_string(xsavedata[i]) << " " << to_string(xsavedata2[i]) << endl;
     }
 }
 
-void change_xsave_data_random(int* xsavedata_int) {
-    for (int i = 0; i < (total_bytes / 4); i++) {
-        xsavedata_int[i] = rand();
+/*
+Inputs: xsavedata is the xsave memory region
+Outputs: None
+Randomly changes data in the xsave data region
+*/
+void change_xsave_data_random(char* xsavedata) {
+    for (int i = 0; i < (total_bytes); i++) {
+        xsavedata[i] = rand() % 256;
     }
 }
 
@@ -83,8 +90,6 @@ void advanced_checker(char* xsave1, char* xsave2, int num_bytes) {
         cout << "both xsave regions are equivalent" << endl;
     }
 }
-
-// NOTE: NEED TO USE 128 BIT FLOATING POINT FOR XMM REGISTERS!
 
 int main(int argc, char *argv[]) {
 
@@ -126,16 +131,6 @@ int main(int argc, char *argv[]) {
         print_two_xsave((char*)xsavedata, (char*)xsavedata2);
         //_xsave(xsavedata, 0xFu);
         counter++;
-
-        /*
-        try {
-            cout << "saving " << to_string(counter) << endl;
-        }
-
-        catch(const std::exception &e) {
-            cout << e.what() << endl;
-        }
-        */
 
         // change the data
         //change_xsave_data_random((int*)xsavedata);
