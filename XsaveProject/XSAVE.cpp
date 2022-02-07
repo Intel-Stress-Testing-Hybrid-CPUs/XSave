@@ -3,6 +3,7 @@
 #include <immintrin.h>
 #include <intrin.h> // for reading __cpuid()
 #include <iostream> // for cout
+#include <sstream> // for std::stringstream
 #include <string> // for to_string() method to go from int to string
 #include <stdlib.h>
 #include <stdio.h>
@@ -24,6 +25,10 @@ using namespace std;
 int total_bytes = 512;
 int byte_boundary_size = 64;
 
+int XMM_start_byte = 160;
+int XMM_end_byte = 287;
+int XMM_width = 16;
+
 // print out the entire xsave data state region
 void print_xsave(int* xsavedata_int) {
     for (int i = 0; i < (total_bytes / 4); i++) {
@@ -33,11 +38,15 @@ void print_xsave(int* xsavedata_int) {
     }
 }
 
-void print_two_xsave(int* xsavedata_int1, int* xsavedata_int2) {
-    for (int i = 0; i < (total_bytes / 4); i++) {
-        int last_byte = (i + 1) * 4 - 1;
-        int first_byte = (i + 1) * 4 - 4;
-        cout << "byte " << to_string(first_byte) << "-" << to_string(last_byte) << ": " << to_string(xsavedata_int1[i]) << " " << to_string(xsavedata_int2[i]) << endl;
+void print_two_xsave(char* xsavedata_f1, char* xsavedata_f2) {
+    for (int i = 0; i < (total_bytes); i++) {
+        cout << "byte " << to_string(i) << ": " << to_string(xsavedata_f1[i]) << " " << to_string(xsavedata_f2[i]) << endl;
+    }
+}
+
+void print_xmm_registers(float* xsavedata) {
+    for (int i = XMM_start_byte; i != XMM_end_byte; i+=XMM_width) {
+
     }
 }
 
@@ -46,6 +55,36 @@ void change_xsave_data_random(int* xsavedata_int) {
         xsavedata_int[i] = rand();
     }
 }
+
+/*
+Inputs: two x-saved memory regions and num_bytes is the first number of bytes to check between both memory regions
+Outputs: Returns 0 if num_bytes are same in both memory regions, non-zero value otherwise
+Checks if two XSAVE memory regions are the same
+*/
+int checker(char* xsave1, char* xsave2, int num_bytes) {
+    return memcmp(xsave1, xsave2, num_bytes);
+}
+
+/*
+Inputs: two x-saved memory regions and num_bytes is the first number of bytes to check between both memory regions
+Outputs: None
+Checks if two XSAVE memory regions are the same and if not, prints out which bytes differ. Otherwise prints a message saying both are same
+*/
+void advanced_checker(char* xsave1, char* xsave2, int num_bytes) {
+    bool noDiff = true;
+    cout << endl; // space out each advanced check
+    for (int i = 0; i < num_bytes; i++) {
+        if (xsave1[i] != xsave2[i]) {
+            cout << "byte " << i << " is different between the two xsave regions" << endl;
+            noDiff = false;
+        }
+    }
+    if (noDiff == true) {
+        cout << "both xsave regions are equivalent" << endl;
+    }
+}
+
+// NOTE: NEED TO USE 128 BIT FLOATING POINT FOR XMM REGISTERS!
 
 int main(int argc, char *argv[]) {
 
@@ -60,6 +99,9 @@ int main(int argc, char *argv[]) {
     if (xsavedata == nullptr || xsavedata2 == nullptr) {
         throw exception("Aligned malloc failed, returned nullptr");
     }
+    cout << "xsavedata in memory: ";
+    //print_memory_addresses(xsavedata);
+    cout << endl;
 
     // clear the data inside the region to all 0s
     memset(xsavedata, 0, total_bytes);
@@ -74,16 +116,18 @@ int main(int argc, char *argv[]) {
 
         // call xsave and save the processor state (note this is 32 bit mode)
         // saves everything in processor state that can be saved
-        print_xsave((int*)xsavedata);
+        //print_xsave((int*)xsavedata);
         _xsave(xsavedata, 0xFu);
-        run_fpu();
+        float fpu_val = run_fpu();
         _xsave(xsavedata2, 0xFu);
+
         //run_fpu();
         //cout << "END" << endl;
-        print_two_xsave((int*)xsavedata, (int*)xsavedata2);
+        print_two_xsave((char*)xsavedata, (char*)xsavedata2);
         //_xsave(xsavedata, 0xFu);
         counter++;
 
+        /*
         try {
             cout << "saving " << to_string(counter) << endl;
         }
@@ -91,15 +135,16 @@ int main(int argc, char *argv[]) {
         catch(const std::exception &e) {
             cout << e.what() << endl;
         }
+        */
 
         // change the data
-        change_xsave_data_random((int*)xsavedata);
+        //change_xsave_data_random((int*)xsavedata);
 
         // realign the memory region
         //std::size_t space = 512;
         //xsavedata = align(64, 512, xsavedata, space);
 
-        //_xrstor(xsavedata, 0xFu);
+        _xrstor(xsavedata, 0x0u);
     }
 
     // print out the results
