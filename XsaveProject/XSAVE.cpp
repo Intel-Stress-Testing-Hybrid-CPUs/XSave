@@ -9,8 +9,10 @@
 #include <stdio.h>
 #include <memory> // for void *align
 #include <exception>
-#include "FP_loop_test.h"
+//#include "FP_loop_test.h"
 #include "InstructionSet.h" // for seeing which Instructions are supported/enabled
+
+extern "C" float run_fpu();
 
 // CREDIT: 
 // Pointer based memory alignment code comes from online C++ documentation:
@@ -29,6 +31,16 @@ int byte_boundary_size = 64;
 int XMM_start_byte = 160;
 int XMM_end_byte = 287;
 int XMM_width = 16;
+
+
+//extern "C" int bar(int param);
+//
+//int foo(void) {
+//    return bar(6);
+//}
+
+
+
 
 /*
 Inputs: xsavedata is the xsave memory region
@@ -92,7 +104,8 @@ void advanced_checker(char* xsave1, char* xsave2, int num_bytes) {
 }
 
 int main(int argc, char *argv[]) {
-
+    //cout << foo();
+    
     /*
     Allocate 128 * 4 = 512 bytes aligned on a 64 byte boundary for XSAVE. This differs from FXSAVE which requires 16 byte boundary
     https://www.felixcloutier.com/x86/xsave
@@ -114,7 +127,7 @@ int main(int argc, char *argv[]) {
 
     // check if XSAVE is supported either by CPU or OS
     // uses InstructionSet.cpp
-    check_instructions();
+    //check_instructions();
 
     int counter = 0;
     while (counter < 1) {

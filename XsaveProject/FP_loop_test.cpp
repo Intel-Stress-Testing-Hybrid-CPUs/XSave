@@ -1,3 +1,6 @@
+float init = 1.000f;
+
 float run_fpu() {
-	return 0.0;
+    init = (0.2232f * init) + init;
+    return init;
 }
