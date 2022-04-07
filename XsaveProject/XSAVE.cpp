@@ -9,10 +9,10 @@
 #include <stdio.h>
 #include <memory> // for void *align
 #include <exception>
-//#include "FP_loop_test.h"
+#include "FP_loop_test.h"
 #include "InstructionSet.h" // for seeing which Instructions are supported/enabled
 
-extern "C" float run_fpu();
+//extern "C" float run_fpu();
 
 // CREDIT: 
 // Pointer based memory alignment code comes from online C++ documentation:
@@ -25,7 +25,7 @@ using namespace std;
 
 /* GLOBALS TO DEFINE XSAVE MEMORY START AND END INDICES FOR SPECIFIC REGIONS*/
 // this is 512 bytes (128 * 4), aligned on 64 byte boundary
-int total_bytes = 512;
+int total_bytes = 1024;
 int byte_boundary_size = 64;
 
 int XMM_start_byte = 160;
@@ -152,7 +152,7 @@ int main(int argc, char *argv[]) {
         //std::size_t space = 512;
         //xsavedata = align(64, 512, xsavedata, space);
 
-        _xrstor(xsavedata, 0x0u);
+        //_xrstor(xsavedata, 0x0u);
     }
 
     // print out the results

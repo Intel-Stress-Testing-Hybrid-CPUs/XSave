@@ -4,10 +4,14 @@ EXTERN puts:PROC
 .data
 
     hello1 db "Hello from ASM.",0
+    const   dd 2000.0
 
 .code
 
 run_fpu PROC
+    mov eax, const
+    movd xmm0,eax
+
     push rbp
     mov rbp, rsp
     sub rsp, 32                 ; Shadow Space
