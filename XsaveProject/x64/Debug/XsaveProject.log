@@ -1,0 +1,3 @@
+﻿  Xsave.cpp
+C:\Users\sharm\source\repos\XSave4\XsaveProject\Xsave.cpp(153,36): warning C4305: 'argument': truncation from 'double' to 'float'
+  XsaveProject.vcxproj -> C:\Users\sharm\Source\Repos\XSave4\x64\Debug\XsaveProject.exe
