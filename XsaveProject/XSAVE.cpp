@@ -1,5 +1,5 @@
 // File for XSAVE instruction testing
-
+#include <Windows.h>
 #include <immintrin.h>
 #include <intrin.h> // for reading __cpuid()
 #include <iostream> // for cout
@@ -9,10 +9,10 @@
 #include <stdio.h>
 #include <memory> // for void *align
 #include <exception>
-#include "FP_loop_test.h"
+//#include "FP_loop_test.h"
 #include "InstructionSet.h" // for seeing which Instructions are supported/enabled
 
-//extern "C" float run_fpu();
+extern "C" float run_fpu(float a);
 
 // CREDIT: 
 // Pointer based memory alignment code comes from online C++ documentation:
@@ -103,6 +103,20 @@ void advanced_checker(char* xsave1, char* xsave2, int num_bytes) {
     }
 }
 
+typedef unsigned char uchar;
+
+float bytesToFloat(uchar b0, uchar b1, uchar b2, uchar b3)
+{
+    float output;
+
+    *((uchar*)(&output) + 3) = b0;
+    *((uchar*)(&output) + 2) = b1;
+    *((uchar*)(&output) + 1) = b2;
+    *((uchar*)(&output) + 0) = b3;
+
+    return output;
+}
+
 int main(int argc, char *argv[]) {
     //cout << foo();
     
@@ -136,8 +150,12 @@ int main(int argc, char *argv[]) {
         // saves everything in processor state that can be saved
         //print_xsave((int*)xsavedata);
         _xsave(xsavedata, 0xFu);
-        float fpu_val = run_fpu();
+        float fpu_val = run_fpu(1.2);
         _xsave(xsavedata2, 0xFu);
+
+
+        cout << "yes";
+        cout << fpu_val;
 
         //run_fpu();
         //cout << "END" << endl;
