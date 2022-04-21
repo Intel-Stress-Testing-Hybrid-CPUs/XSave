@@ -10,8 +10,8 @@ EXTERN puts:PROC
    
 
 .code
+run_fpu PROC var1:DWORD
 
-run_fpu PROC
     
 
     push rbp
@@ -19,15 +19,24 @@ run_fpu PROC
     sub rsp, 32                 ; Shadow Space
     and spl, -16                ; Align stack at 16
 
+    ;push ebp
+    ;mov ebp, esp
+
+    ;mov ebp, [ebp+8]
+
     lea rcx, hello1
     call puts
 
     leave                       ; Restore stack (rsp) & frame pointer (rbp)
 
     mov eax,edi
-    movd xmm0, eax; load from memory
-    addss xmm0,xmm0 ; add to itself (double it)
+
+    ;movd xmm0, ebp
+    ;movd xmm0, eax; load from memory
+    movd xmm0, var1
+    ; addss xmm0,xmm0 ; add to itself (double it)
     
+    ;pop ebp
     ret
 
     

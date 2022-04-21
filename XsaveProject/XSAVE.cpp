@@ -32,16 +32,6 @@ int XMM_start_byte = 160;
 int XMM_end_byte = 287;
 int XMM_width = 16;
 
-
-//extern "C" int bar(int param);
-//
-//int foo(void) {
-//    return bar(6);
-//}
-
-
-
-
 /*
 Inputs: xsavedata is the xsave memory region
 Outputs: None
@@ -154,8 +144,14 @@ int main(int argc, char *argv[]) {
         _xsave(xsavedata2, 0xFu);
 
 
-        cout << "yes";
+        cout << "fpu_val 1: ";
         cout << fpu_val;
+        cout << ", ";
+
+        char* xsavedata2_char = (char*)xsavedata2;
+        float float2 = bytesToFloat(xsavedata2_char[163], xsavedata2_char[162], xsavedata2_char[161], xsavedata2_char[160]);
+
+        cout << "fpu_val 2: " << float2 << endl;
 
         //run_fpu();
         //cout << "END" << endl;
