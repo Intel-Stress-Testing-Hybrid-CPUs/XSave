@@ -13,8 +13,6 @@
 //#include "FP_loop_test.h"
 #include "InstructionSet.h" // for seeing which Instructions are supported/enabled
 
-extern "C" float run_fpu(float a);
-
 // CREDIT: 
 // Pointer based memory alignment code comes from online C++ documentation:
 /*
@@ -32,6 +30,10 @@ int byte_boundary_size = 64;
 int XMM_start_byte = 160;
 int XMM_end_byte = 287;
 int XMM_width = 16;
+
+// GLOBALS
+int num_tests = 100;
+//#define DEBUG 1 // comment out if you don't want full information
 
 /*
 Inputs: xsavedata is the xsave memory region
@@ -99,7 +101,6 @@ typedef unsigned char uchar;
 float bytesToFloat(uchar b0, uchar b1, uchar b2, uchar b3)
 {
     float output;
-
     *((uchar*)(&output) + 3) = b0;
     *((uchar*)(&output) + 2) = b1;
     *((uchar*)(&output) + 1) = b2;
@@ -136,17 +137,11 @@ int main(int argc, char *argv[]) {
     // Start XSAVE test
     cout << "Starting XSAVE Test" << endl;
 
-    int num_floats = 16;
-    float *float_array = (float*) malloc(num_floats * sizeof(float));
-    int float_array_index = 0;
-
     float float_rand_array[4];
     float float_val = 0.0;
 
     int counter = 0;
-    while (counter < 10) {
-
-    
+    while (counter < num_tests) {
 
         // call xsave and save the processor state (note this is 32 bit mode)
         // saves everything in processor state that can be saved
@@ -157,17 +152,13 @@ int main(int argc, char *argv[]) {
         //float_val = float_array[float_array_index];
         for (int i = 0; i < 4; i++) {
             float_rand_array[i] = (float)rand();
-            cout << float_rand_array[i] << endl;
+            #ifdef DEBUG
+                cout << float_rand_array[i] << endl;
+            #endif
         }
 
+        // load stacked 4 32-bit single precision floating points into xmm register
         _mm_loadu_ps(float_rand_array);
-
-        // increment floating array index for next iteration
-        //float_array_index++;
-        //if (float_array_index == num_floats) {
-            // reset float array index
-        //    float_array_index = 0;
-        //}
 
         // save processor state again
         _xsave(xsavedata2, 0xFu);
@@ -175,10 +166,6 @@ int main(int argc, char *argv[]) {
         // print out both regions
         if(counter == 0)
             print_two_xsave((char*)xsavedata, (char*)xsavedata2);
-
-        //cout << "float_val 1: ";
-        //cout << float_val;
-        //cout << ", ";
 
         char* xsavedata2_char = (char*)xsavedata2;
 
@@ -189,14 +176,18 @@ int main(int argc, char *argv[]) {
             float_val2 = bytesToFloat(xsavedata2_char[cur_index + 3], xsavedata2_char[cur_index + 2], xsavedata2_char[cur_index + 1], xsavedata2_char[cur_index]);
             if (float_rand_array[i] != float_val2) {
                 cout << "FAILURE ON THIS TEST" << endl;
-                cout << "val1: " << float_rand_array[i] << ", " << " val2: " << float_val2 << endl;
+                #ifdef DEBUG
+                    cout << "val1: " << float_rand_array[i] << ", " << " val2: " << float_val2 << endl;
+                #endif
                 failure_flag = 1;
-                //return 1;
+            }
+            else {
+                #ifdef DEBUG
+                    cout << "val1: " << float_rand_array[i] << ", " << " val2: " << float_val2 << endl;
+                #endif          
             }
             cur_index += 4;
         }
-
-        //float float_val2 = bytesToFloat(xsavedata2_char[163], xsavedata2_char[162], xsavedata2_char[161], xsavedata2_char[160]);
 
         if (failure_flag == 0) {
             cout << "Test " << std::to_string(counter) << " successful" << endl;
@@ -205,36 +196,14 @@ int main(int argc, char *argv[]) {
             cout << "Test " << std::to_string(counter) << " failed" << endl;
         }
 
-        //cout << "float_val 2: " << float_val2;
-
-        // both values are same means success
-        /*
-        if (float_val == float_val2) {
-            cout << ", SUCCESS" << endl;
-        }
-        else {
-            cout << ", FAILURE" << endl;
-            return 1;
-        }
-        */
-
         counter++;
-
-        
-
-       
-
-        //_xrstor(xsavedata, 0x0u);
     }
 
-    // print out the results
-    //print_xsave((int*)xsavedata);
-    
+ 
     // free allocated data region using special _aligned_free() method
-    // TODO: fix _aligned_free(xsavedata)
-
     try {
         _aligned_free(xsavedata);
+        _aligned_free(xsavedata2);
     }
     catch (const std::exception& e) {
         cout << e.what() << endl;
