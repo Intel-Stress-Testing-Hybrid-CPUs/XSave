@@ -120,6 +120,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <Optimization>Disabled</Optimization>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -143,6 +144,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="InstructionSet.cpp" />
     <ClCompile Include="Xsave.cpp" />
     <ClCompile Include="Xsave_arjun.cpp" />
   </ItemGroup>
@@ -150,6 +152,9 @@
     <MASM Include="FP_loop_test.asm">
       <FileType>Document</FileType>
     </MASM>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="InstructionSet.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

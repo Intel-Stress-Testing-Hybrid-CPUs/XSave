@@ -1,3 +1,2 @@
 ﻿  Xsave.cpp
-C:\Users\viraj\source\repos\Intel_sample_code\XsaveProject\Xsave.cpp(143,36): warning C4305: 'argument': truncation from 'double' to 'float'
   XsaveProject.vcxproj -> C:\Users\viraj\source\repos\Intel_sample_code\x64\Debug\XsaveProject.exe

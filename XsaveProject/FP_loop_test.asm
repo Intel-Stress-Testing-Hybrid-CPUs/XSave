@@ -2,17 +2,21 @@ PUBLIC run_fpu
 EXTERN puts:PROC
 
 .data
-
+    align 16
     hello1 db "Hello from ASM.",0
     const   dd 2000.0
     ThreeBytes db 10h,20h,30h
-    a dd 1.234
+    aval dd 1.234, 2.3456, 3.4567, 4.5678 ; this is a one dimensional array
+    value dd 1.0
+    address dd 0
    
 
 .code
-run_fpu PROC var1:DWORD
+run_fpu PROC
 
-    
+    ;mov ebp,esp
+    ;mov eax,[ebp+8]          ;Put argument addresses to registers
+    ;mov ebx,[ebp+12] 
 
     push rbp
     mov rbp, rsp
@@ -32,9 +36,10 @@ run_fpu PROC var1:DWORD
     mov eax,edi
 
     ;movd xmm0, ebp
-    ;movd xmm0, eax; load from memory
-    movd xmm0, var1
-    ; addss xmm0,xmm0 ; add to itself (double it)
+    movd xmm0, eax; load from memory
+    ; movdqa xmm0, xmmword ptr [ebx]
+    ; movaps xmm0, [aval]
+    addss xmm0,xmm0 ; add to itself (double it)
     
     ;pop ebp
     ret
