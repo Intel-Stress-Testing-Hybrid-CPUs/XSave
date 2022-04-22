@@ -33,8 +33,9 @@ int XMM_width = 16;
 
 // GLOBALS
 int num_tests = 100;
-//#define DEBUG 1 // comment out if you don't want full information
-
+//#define DEBUG 1 // comment out if you don't want full information (excluding printing every xsave region)
+//#define DEBUGPRINT 1 // comment out if you don't want full printing of all xsave regions
+ 
 /*
 Inputs: xsavedata is the xsave memory region
 Outputs: None
@@ -49,10 +50,10 @@ void print_xsave(char* xsavedata) {
 /*
 Inputs: xsavedata and xsavedata2 are xsave memory regions
 Outputs: None
-Prints out the data of two x-save memory regions on a per-byte basis, prints out number of bytes = total_bytes
+Prints out the data of two x-save memory regions on a per-byte basis, prints out number of bytes = 288 bytes
 */
 void print_two_xsave(char* xsavedata, char* xsavedata2) {
-    for (int i = 0; i < (total_bytes); i++) {
+    for (int i = 0; i < 288; i++) { // looking at 288 bytes
         cout << "byte " << to_string(i) << ": " << to_string(xsavedata[i]) << " " << to_string(xsavedata2[i]) << endl;
     }
 }
@@ -147,9 +148,7 @@ int main(int argc, char *argv[]) {
         // saves everything in processor state that can be saved
         _xsave(xsavedata, 0xFu);
 
-        // Create a floating point number (Change)
-        //float_array[float_array_index] = (float)rand();
-        //float_val = float_array[float_array_index];
+        // Create a floating point number
         for (int i = 0; i < 4; i++) {
             float_rand_array[i] = (float)rand();
             #ifdef DEBUG
@@ -164,8 +163,9 @@ int main(int argc, char *argv[]) {
         _xsave(xsavedata2, 0xFu);
 
         // print out both regions
-        if(counter == 0)
+        #ifdef DEBUGPRINT
             print_two_xsave((char*)xsavedata, (char*)xsavedata2);
+        #endif  
 
         char* xsavedata2_char = (char*)xsavedata2;
 

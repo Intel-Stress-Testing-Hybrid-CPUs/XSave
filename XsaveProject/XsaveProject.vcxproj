@@ -150,11 +150,6 @@
     <ClCompile Include="Xsave_arjun.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <MASM Include="FP_loop_test.asm">
-      <FileType>Document</FileType>
-    </MASM>
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="InstructionSet.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
